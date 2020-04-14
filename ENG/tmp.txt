@@ -1,0 +1,1 @@
+clang++ main.cpp -omain -framework OpenGL -framework GLUT -lfreeimage
