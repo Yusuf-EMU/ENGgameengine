@@ -129,7 +129,25 @@ void processNormalKeys(unsigned char key, int x, int y) {
 
 /* Initialize OpenGL Graphics */
 void initGL() {           
+   GLfloat ambientLight[] = {0.2f, 0.2f, 0.2f, 1.0f};
+   GLfloat specularLight[] = { 1.0, 1.0, 1.0, 1.0 };
+   GLfloat shininessLight[] = { 50.0 };
+   GLfloat lightColor[] = {0.6f, 0.6f, 0.6f, 1.0f};
+   GLfloat lightPos[] ={10,0,-15,1};
+
    glEnable( GL_MULTISAMPLE );
+   glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT0);
+   glShadeModel (GL_SMOOTH);
+   glEnable(GL_COLOR_MATERIAL);
+
+   glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+   //Diffuse (non-shiny) light component
+   glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
+   //Specular (shiny) light component
+   glLightfv(GL_LIGHT0, GL_SPECULAR, lightColor);
+   glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+   
    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
    glClearDepth(1.0f);                   // Set background depth to farthest
    //glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, decal);
@@ -140,15 +158,10 @@ void initGL() {
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
    if(maxAniso != 0.0) {
-      //Aniso set init
-      glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
-      glGenSamplers(5, &g_samplers);
-
-      //Aniso set
-      glSamplerParameteri(g_samplers, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-      glSamplerParameteri(g_samplers, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-      glSamplerParameterf(g_samplers, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-   }
+      glSamplerParameteri(g_samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+      glSamplerParameteri(g_samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+      glSamplerParameterf(g_samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);   
+   } 
 
    glEnable(GL_DEPTH_TEST);   // Enable depth testing for z-culling
    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
@@ -172,10 +185,15 @@ void display() {
    // Render a color-cube consisting of 6 quads with different colors
    glLoadIdentity();                 // Reset the model-view matrix
    glEnable(GL_TEXTURE_2D); 
+   //std::thread threadt(engTranslatef, 1.5f, 0, -6.0f, Cube);
    engTranslatef(1.5f, 0, -6.0f, Cube);
+   // glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shine);
    glEnable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
     glEnable(GL_TEXTURE_GEN_T);
+    glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE ) ;
+    glEnable ( GL_COLOR_MATERIAL ) ;
     glBindTexture(GL_TEXTURE_2D, texID[0]);
+    //threadt.join();
     glutSolidCube(2);
     glDisable(GL_TEXTURE_GEN_S); //enable texture coordinate generation
     glDisable(GL_TEXTURE_GEN_T);
@@ -220,10 +238,11 @@ void display() {
       glVertex3f(-1.0f,-1.0f, 1.0f);
    glEnd();   // Done drawing the pyramid
    
-   PhysicsUpdate();
+   //std::thread threadp(PhysicsUpdate);
    glutSwapBuffers();  // Swap the front and back frame buffers (double buffering)
    float deltatime = clock() - t;
    printf("%f fps\n", (CLOCKS_PER_SEC / deltatime));
+   //threadp.join ();
 }
 
 void loadTextures() {
