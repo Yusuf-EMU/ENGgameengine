@@ -5,15 +5,21 @@ Compile with
     g++ main.cpp -omain -framework OpenGL -framework GLUT -lfreeimage -O2 
 for release
 */
+#if ( (defined(__MACH__)) && (defined(__APPLE__)) )  
 #include <stdlib.h>  
 #include <OpenGL/gl.h>  
 #include <GLUT/glut.h>  
 #include <OpenGL/glext.h> 
 #include <math.h>
 #include <OpenGL/gl3.h>
-
-#define GLFW_INCLUDE_GL3  /* don't drag in legacy GL headers. */
-#define GLFW_NO_GLU
+#else
+#include <stdlib.h>  
+#include <GL/gl.h>  
+#include <GL/glut.h>  
+#include <GL/glext.h> 
+#include <math.h>
+#include <GL/gl3.h>
+#endif
 #include <stdio.h> 
 #include <stdlib.h>
 #include <iostream>
